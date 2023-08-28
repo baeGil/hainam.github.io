@@ -1,0 +1,178 @@
+<head>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="flex justify-center items-center bg-gradient-to-t from-gray-50 to-gray-400">
+    <form id="login"
+        class="w-full max-w-sm bg-gradient-to-t from-orange-50 via-yellow-50 to-lime-50 shadow-2xl rounded-2xl px-8 pt-6 pb-4">
+        <div class="w-full my-3">
+            <p class="block text-gray-500 font-gil text-center cursor-default mb-1 text-3xl"><b>SIGN UP</b></p>
+        </div>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="username">Username</label>
+            </div>
+            <div class="w-full">
+                <input class="input" id="username" name="username" type="text" placeholder="Guest123">
+            </div>
+        </div>
+        <p class="error" id="u-error"></p>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="password">Password</label>
+            </div>
+            <div class="w-full container relative">
+                <input class="input" id="password" name="password" type="password" placeholder="******************">
+                <div class="w-5 absolute inset-y-2.5 right-3 cursor-pointer">
+                    <img onclick="showpassword1();" id="eye1" src="image/close-eye.png">
+                </div>
+            </div>
+        </div>
+        <p class="error" id="p-error"></p>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="confirmPassword">Confirm
+                    password</label>
+            </div>
+            <div class="w-full container relative">
+                <input class="input" id="confirmPassword" name="confirmPassword" type="password"
+                    placeholder="******************">
+                <div class="w-5 absolute inset-y-2.5 right-3 cursor-pointer">
+                    <img onclick="showpassword2();" id="eye2" src="image/close-eye.png">
+                </div>
+            </div>
+        </div>
+        <p class="error" id="c-error"></p>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="email">Email</label>
+            </div>
+            <div class="w-full">
+                <input class="input" id="email" name="email" type="text" placeholder="Guest123@example.com">
+            </div>
+        </div>
+        <input type="hidden" id="role" name="role" value="customer" />
+        <p class="error" id="e-error"></p>
+        <div class="flex items-center my-3">
+            <p class="w-full block text-gray-500 font-gil text-left text-sm cursor-default">
+                Already got an account? <a class="hover:text-gray-800" href="./login"> <b>Log in</b></a>
+            </p>
+        </div>
+        <div class="my-3">
+            <div class="w-full flex items-center justify-center">
+                <button
+                    class="btn bg-stone-200 focus:shadow-outline focus:outline-none text-gray-500 hover:bg-gray-500 hover:text-stone-200">
+                    Sign Up
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div hidden id="success-page"
+        class="w-full max-w-sm bg-gradient-to-t from-orange-50 via-yellow-50 to-lime-50 shadow-2xl rounded-2xl px-8 pt-6 pb-4">
+        <div class=" relative conatiner p-4 pt-20 mmx-auto">
+            <div class="w-14 absolute inset-y-2.5 right-[134px]">
+                <img src="image/prize.png">
+            </div>
+            <div class="text-center">
+                <h1 class="mtext-2xl text-base text-gray-900 font-gil font-bold text-center">SIGN UP SUCCESSFULLY</h1>
+                <p class="text-gray-600 my-1">Click the button below to continue logging in</p>
+                <p> Have a great day! </p>
+                <div class="mt-4">
+                    <div class="w-full flex items-center justify-center">
+                        <button type="button" id="button"
+                            class="z-50 btn bg-orange-200 focus:shadow-outline focus:outline-none text-gray-500">
+                            Log in
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+    //show password toggle
+    const eye1 = document.getElementById("eye1")
+    const eye2 = document.getElementById("eye2")
+    const password = document.getElementById("password")
+    const confirmPassword = document.getElementById("confirmPassword");
+
+    const showpassword1 = () => {
+        if (password.type == "password") {
+            password.setAttribute("type", "text");
+            eye1.src = "image/eyes.png"
+        } else {
+            password.setAttribute("type", "password");
+            eye1.src = "image/close-eye.png"
+        }
+    }
+    const showpassword2 = () => {
+        if (confirmPassword.type == "password") {
+            confirmPassword.setAttribute("type", "text");
+            eye2.src = "image/eyes.png"
+        } else {
+            confirmPassword.setAttribute("type", "password");
+            eye2.src = "image/close-eye.png"
+        }
+    }
+    // submit event for sign up button
+    const form = document.querySelector('form');
+    form.addEventListener('submit',
+        async (e) => {
+            e.preventDefault();
+
+            // get the errors and reset
+            const error1 = document.getElementById("u-error")
+            const error2 = document.getElementById("p-error")
+            const error3 = document.getElementById("c-error")
+            const error4 = document.getElementById("e-error")
+            error1.innerHTML = ""
+            error2.innerHTML = ""
+            error3.innerHTML = ""
+            error4.innerHTML = ""
+
+            // get the values
+            const email = form.email.value;
+            const username = form.username.value;
+            const password = form.password.value;
+            const role = form.role.value;
+            const confirmPassword = form.confirmPassword.value;
+            try {
+                const res = await fetch("customers/signup", {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password, confirmPassword, email, role }),
+                    headers: { 'Content-type': "application/json" },
+                });
+
+                const data = await res.json();
+                switch (data.error) {
+                    case "u-error":
+                        error1.innerHTML = data.message;
+                        break;
+                    case "p-error":
+                        error2.innerHTML = data.message;
+                        break;
+                    case "c-error":
+                        error3.innerHTML = data.message;
+                        break;
+                    case "e-error":
+                        error4.innerHTML = data.message;
+                        break;
+                }
+                if (data.user) {
+                    const success = document.getElementById("success-page");
+                    const hidden = document.getElementById("login")
+                    success.removeAttribute("hidden");
+                    hidden.setAttribute("hidden", true)
+                }
+            } catch (err) {
+                console.log(err)
+            }
+        }
+    )
+    document.getElementById("button").addEventListener("click", myfunction);
+    function myfunction() {
+        window.location.replace("/login")
+    }
+</script>

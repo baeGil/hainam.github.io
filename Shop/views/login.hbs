@@ -1,0 +1,104 @@
+<head>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="flex justify-center items-center bg-gradient-to-t from-indigo-50 to-indigo-300">
+    <form id="login"
+        class="w-full max-w-sm bg-gradient-to-b from-lime-50 via-green-50 to-emerald-50 shadow-2xl rounded-2xl px-8 pt-6 pb-4">
+        <div class="w-full mb-3">
+            <p class="block text-gray-500 font-gil text-center mb-1 text-3xl cursor-default"><b>LOG IN</b></p>
+        </div>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="username">Username</label>
+            </div>
+            <div class="w-full">
+                <input class="input" id="username" name="username" type="text" placeholder="Guest123">
+            </div>
+        </div>
+        <p class="error" id="u-error"></p>
+        <div class="my-3">
+            <div class="w-full">
+                <label class="label" for="password">Password</label>
+            </div>
+            <div class="w-full container relative">
+                <input class="input" id="password" name="password" type="password" placeholder="******************">
+                <div class="w-5 absolute inset-y-2.5 right-3 cursor-pointer">
+                    <img onclick="showpassword();" id="eye" src="image/close-eye.png">
+                </div>
+            </div>
+        </div>
+        <p class="error" id="p-error"></p>
+        <div class="flex items-center my-3">
+            <p class="w-full block text-gray-500 cursor-default font-gil text-left text-sm">
+                <a class="hover:text-gray-700" href="./forgotPassword"><b>Forgot
+                        password?</b></a> <br>
+                Haven't got an account?<a class="hover:text-gray-700" href="./signup"> <b>Sign up </b></a>
+            </p>
+        </div>
+        <div class="mb-3 mt-5">
+            <div class="w-full flex items-center justify-center">
+                <button
+                    class="btn bg-blue-200 hover:text-blue-200 hover:bg-gray-500 focus:shadow-outline focus:outline-none text-gray-500">
+                    Log in
+                </button>
+            </div>
+        </div>
+    </form>
+</body>
+<script>
+    const eye = document.getElementById("eye")
+    const password = document.getElementById("password")
+
+    const showpassword = () => {
+        if (password.type == "password") {
+            password.setAttribute("type", "text");
+            eye.src = "image/eyes.png"
+        } else {
+            password.setAttribute("type", "password");
+            eye.src = "image/close-eye.png"
+        }
+    }
+    // submit event for log in button
+    const form = document.querySelector('form');
+    form.addEventListener('submit',
+        async (e) => {
+            e.preventDefault();
+
+            // get the errors and reset
+            const error1 = document.getElementById("u-error")
+            const error2 = document.getElementById("p-error")
+            error1.innerHTML = ""
+            error2.innerHTML = ""
+
+            // get the values
+            const username = form.username.value;
+            const password = form.password.value;
+            try {
+                const res = await fetch("customers/login", {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password }),
+                    headers: { 'Content-type': "application/json" },
+                });
+
+                const data = await res.json();
+                switch (data.error) {
+                    case "u-error":
+                        error1.innerHTML = data.message;
+                        break;
+                    case "p-error":
+                        error2.innerHTML = data.message;
+                        break;
+                    case true:
+                        error2.innerHTML = "Username or password is incorrect"
+                        break;
+                }
+                if (data.user) {
+                    window.location.replace("/homepage")
+                }
+            } catch (err) {
+                console.log(err)
+            }
+        }
+    )
+</script>
